@@ -1,0 +1,40 @@
+services:
+  # Service SonarQube
+  sonarqube:
+    image: sonarqube:lts-community # Utilisation de l'image SonarQube Community
+    container_name: sonarqube_server
+    restart: always
+    depends_on:
+      - db # Dépendance à la base de données PostgreSQL
+    environment:
+      SONAR_JDBC_URL: jdbc:postgresql://db:5432/sonar # URL JDBC pour se connecter à la base de données
+      SONAR_JDBC_USERNAME: sonar # Nom d'utilisateur de la base de données SonarQube
+      SONAR_JDBC_PASSWORD: sonar # Mot de passe de la base de données SonarQube
+      SONAR_ES_BOOTSTRAP_CHECKS_DISABLE: true
+      SONAR_SEARCH_JAVA_OPTS: -Xms512m -Xmx512m
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data # Montage du répertoire de données de SonarQube
+      - sonarqube_extensions:/opt/sonarqube/extensions # Montage du répertoire des extensions de SonarQube
+      - sonarqube_logs:/opt/sonarqube/logs # Montage du répertoire des journaux de SonarQube
+    ports:
+      - "9001:9000" # Mappage du port 9000 de l'hôte sur le port 9000 du conteneur SonarQube
+  
+  # Service de la base de données PostgreSQL
+  db:
+    image: postgres # Utilisation de l'image PostgreSQL version 12
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_USER: sonar # Utilisateur de la base de données PostgreSQL
+      POSTGRES_PASSWORD: sonar # Mot de passe de la base de données PostgreSQL
+    volumes:
+      - postgresql:/var/lib/postgresql # Montage du répertoire de données PostgreSQL
+      - postgresql_data:/var/lib/postgresql/data # Montage du répertoire de données PostgreSQL
+
+volumes:
+  # Définition des volumes Docker pour SonarQube et PostgreSQL
+  sonarqube_data:
+  sonarqube_extensions:
+  sonarqube_logs:
+  postgresql:
+  postgresql_data:
